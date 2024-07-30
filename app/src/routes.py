@@ -5,8 +5,11 @@ import datetime
 
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from prometheus_client import Counter, generate_latest, CollectorRegistry
+
 from .models import Entity
 from . import db
+
 
 SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_secret_key')
 TOKEN_EXPIRATION = {
@@ -15,6 +18,20 @@ TOKEN_EXPIRATION = {
 }
 
 main = Blueprint('main', __name__)
+
+registry = CollectorRegistry()
+
+
+ENTITY_CREATION_COUNT = Counter('entity_creation_count', 'Total Entity Creation Count', registry=registry)
+LOGIN_SUCCESS_COUNT = Counter('login_success_count', 'Total Successful Logins', registry=registry)
+TOKEN_VERIFICATION_COUNT = Counter('token_verification_count', 'Total Token Verification Attempts', registry=registry)
+TOKEN_EXPIRED_COUNT = Counter('token_expired_count', 'Total Expired Token Verifications', registry=registry)
+INVALID_TOKEN_COUNT = Counter('invalid_token_count', 'Total Invalid Token Verifications', registry=registry)
+REQUEST_COUNT = Counter('request_count', 'Total Request Count', registry=registry)
+
+@main.before_request
+def before_request():
+    REQUEST_COUNT.inc()
 
 @main.route('/entity', methods=['POST'])
 def create_entity():
@@ -48,6 +65,8 @@ def create_entity():
     db.session.add(new_entity)
     db.session.commit()
 
+    ENTITY_CREATION_COUNT.inc()
+
     return jsonify({'id': new_entity.id}), 201
 
 @main.route('/login', methods=['POST'])
@@ -63,6 +82,8 @@ def login():
     user = Entity.query.filter_by(email=email).first()
     if not user or not check_password_hash(user.password, password):
         return jsonify({'error': 'Email ou senha incorretos.'}), 401
+    
+    LOGIN_SUCCESS_COUNT.inc()
     
     expiration = TOKEN_EXPIRATION['long'] if stay_connected else TOKEN_EXPIRATION['short']
 
@@ -92,11 +113,20 @@ def verify_token():
 
         user = Entity.query.filter_by(id=user_id).first()
         if not user or user.email != token_email:
+            INVALID_TOKEN_COUNT.inc() 
             return jsonify({'error': 'Token inválido ou não autorizado.'}), 401
         
+        TOKEN_VERIFICATION_COUNT.inc()
+
         return jsonify({'message': 'Token é válido.'}), 200
 
     except jwt.ExpiredSignatureError:
+        INVALID_TOKEN_COUNT.inc() 
         return jsonify({'error': 'Token expirado.'}), 401
     except jwt.InvalidTokenError:
+        INVALID_TOKEN_COUNT.inc() 
         return jsonify({'error': 'Token inválido.'}), 401
+    
+@main.route('/metrics')
+def metrics():
+    return generate_latest(registry)
