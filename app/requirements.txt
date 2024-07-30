@@ -4,3 +4,4 @@ psycopg2-binary
 werkzeug
 pyjwt
 flask-bcrypt
+prometheus_client
