@@ -10,14 +10,17 @@ def create_app():
 
     db.init_app(app)
     
-    environment = os.getenv('ENV', 'DEV')
+    environment = os.getenv('ENV', 'local')
 
     if environment == 'DEV':
-        app.config['DEBUG'] = True
+        app.config['DEBUG'] = False
         app.config['ENV'] = 'development'
     elif environment == 'PRO':
         app.config['DEBUG'] = False
         app.config['ENV'] = 'production'
+    elif environment == 'local':
+        app.config['DEBUG'] = True
+        app.config['ENV'] = 'development'
 
     from .routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
