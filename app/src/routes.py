@@ -22,12 +22,12 @@ main = Blueprint('main', __name__)
 registry = CollectorRegistry()
 
 
-ENTITY_CREATION_COUNT = Counter('entity_creation_count', 'Total Entity Creation Count', registry=registry)
-LOGIN_SUCCESS_COUNT = Counter('login_success_count', 'Total Successful Logins', registry=registry)
-TOKEN_VERIFICATION_COUNT = Counter('token_verification_count', 'Total Token Verification Attempts', registry=registry)
-TOKEN_EXPIRED_COUNT = Counter('token_expired_count', 'Total Expired Token Verifications', registry=registry)
-INVALID_TOKEN_COUNT = Counter('invalid_token_count', 'Total Invalid Token Verifications', registry=registry)
-REQUEST_COUNT = Counter('request_count', 'Total Request Count', registry=registry)
+ENTITY_CREATION_COUNT = Counter('frg_auth2_entity_creation_count', 'Total Entity Creation Count', registry=registry)
+LOGIN_SUCCESS_COUNT = Counter('frg_auth2_login_success_count', 'Total Successful Logins', registry=registry)
+TOKEN_VERIFICATION_COUNT = Counter('frg_auth2_token_verification_count', 'Total Token Verification Attempts', registry=registry)
+TOKEN_EXPIRED_COUNT = Counter('frg_auth2_token_expired_count', 'Total Expired Token Verifications', registry=registry)
+INVALID_TOKEN_COUNT = Counter('frg_auth2_invalid_token_count', 'Total Invalid Token Verifications', registry=registry)
+REQUEST_COUNT = Counter('frg_auth2_request_count', 'Total Request Count', registry=registry)
 
 @main.before_request
 def before_request():
