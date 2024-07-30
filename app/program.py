@@ -3,6 +3,7 @@ import os
 from src import create_app
 
 port = int(os.getenv('PORT', 50000)) 
+
 app = create_app()
 
 if __name__ == '__main__':
