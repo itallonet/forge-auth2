@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Defina o diretório de trabalho
-WORKDIR /app
+WORKDIR /home/auth2
 
 # Copie o arquivo de requisitos e instale as dependências
 COPY ./app/requirements.txt .
